@@ -1,0 +1,41 @@
+TOOLPATH = ../../z_tools/
+MAKE     = make -r
+NASK     = $(TOOLPATH)nask
+EDIMG    = $(TOOLPATH)edimg
+COPY     = cp
+DEL      = rm
+
+# デフォルト動作
+
+default :
+	$(MAKE) img
+
+# ファイル生成規則
+
+ipl.bin : ipl.nas Makefile
+	$(NASK) ipl.nas ipl.bin ipl.lst
+
+helloos.img : ipl.bin Makefile
+	$(EDIMG) imgin:../../z_tools/fdimg0at.tek \
+		wbinimg src:ipl.bin len:512 from:0 to:0 imgout:helloos.img
+
+# コマンド
+
+asm :
+	$(MAKE) ipl.bin
+
+img :
+	$(MAKE) helloos.img
+
+run :
+	$(MAKE) img
+	$(COPY) helloos.img ../../z_tools/qemu/fdimage0.bin
+	$(MAKE) -C ../../z_tools/qemu
+
+clean :
+	-$(DEL) ipl.bin
+	-$(DEL) ipl.lst
+
+src_only :
+	$(MAKE) clean
+	-$(DEL) helloos.img
